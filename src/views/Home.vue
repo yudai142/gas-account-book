@@ -40,7 +40,7 @@
         <v-spacer/>
         <!-- 追加ボタン -->
         <v-col class="text-right" cols="4">
-          <v-btn dark color="green">
+          <v-btn dark color="green" @click="onClickAdd">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </v-col>
@@ -93,18 +93,29 @@
           {{ separate(item.outgo) }}
         </template>
         <!-- 操作列 -->
-        <template v-slot:item.actions="{}">
-          <v-icon class="mr-2">mdi-pencil</v-icon>
-          <v-icon>mdi-delete</v-icon>
+        <template v-slot:item.actions="{ item }">
+          <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
+          <v-icon @click="onClickDelete(item)">mdi-delete</v-icon>
         </template>
       </v-data-table>
     </v-card>
+    <!-- 追加／編集ダイアログ -->
+    <ItemDialog ref="itemDialog"/>
+    <!-- 削除ダイアログ -->
+    <DeleteDialog ref="deleteDialog"/>
   </div>
 </template>
 
 <script>
+import ItemDialog from '../components/ItemDialog.vue'
+import DeleteDialog from '../components/DeleteDialog.vue'
+
 export default {
   name: 'Home',
+  components: {
+    ItemDialog,
+    DeleteDialog
+  },
 
   data () {
     const today = new Date()
@@ -157,6 +168,18 @@ export default {
      */
     separate (num) {
       return num !== null ? num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : null
+    },
+    /** 追加ボタンがクリックされたとき */
+    onClickAdd () {
+      this.$refs.itemDialog.open('add')
+    },
+    /** 編集ボタンがクリックされたとき */
+    onClickEdit (item) {
+      this.$refs.itemDialog.open('edit', item)
+    },
+    /** 削除ボタンがクリックされたとき */
+    onClickDelete (item) {
+      this.$refs.deleteDialog.open(item)
     }
   }
 }
