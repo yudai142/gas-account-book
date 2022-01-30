@@ -21,6 +21,7 @@
         <router-view></router-view>
       </v-container>
     </v-main>
+    <!-- スナックバー -->
     <v-snackbar v-model="snackbar" color="error">{{ errorMessage }}</v-snackbar>
   </v-app>
 </template>
