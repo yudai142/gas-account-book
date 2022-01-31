@@ -128,20 +128,38 @@ const mutations = {
   },
 
   /** データを追加します */
-  addAbData ({ commit }, { item }) {
-    commit('addAbData', { item })
+  async addAbData ({ commit }, { item }) {
+    const type = 'add'
+    commit('setLoading', { type, v: true })
+    try {
+      const res = await gasApi.add(item)
+      commit('addAbData', { item: res.data })
+    } catch (e) {
+      commit('setErrorMessage', { message: e })
+    } finally {
+      commit('setLoading', { type, v: false })
+    }
   },
 
   /** データを更新します */
-  updateAbData ({ commit }, { beforeYM, item }) {
+  async updateAbData ({ commit }, { beforeYM, item }) {
+    const type = 'update'
     const yearMonth = item.date.slice(0, 7)
-    if (yearMonth === beforeYM) {
-      commit('updateAbData', { yearMonth, item })
-      return
+    commit('setLoading', { type, v: true })
+    try {
+      const res = await gasApi.update(beforeYM, item)
+      if (yearMonth === beforeYM) {
+        commit('updateAbData', { yearMonth, item })
+        return
+      }
+      const id = item.id
+      commit('deleteAbData', { yearMonth: beforeYM, id })
+      commit('addAbData', { item: res.data })
+    } catch (e) {
+      commit('setErrorMessage', { message: e })
+    } finally {
+      commit('setLoading', { type, v: false })
     }
-    const id = item.id
-    commit('deleteAbData', { yearMonth: beforeYM, id })
-    commit('addAbData', { item })
   },
 
   /** データを削除します */

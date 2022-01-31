@@ -121,7 +121,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 
 
 export default {
@@ -135,8 +135,6 @@ export default {
       valid: false,
       /** 日付選択メニューの表示状態 */
       menu: false,
-      /** ローディング状態 */
-      loading: false,
 
       /** 操作タイプ 'add' or 'edit' */
       actionType: 'add',
@@ -184,6 +182,10 @@ export default {
       /** タグ */
       'tagItems'
     ]),
+    ...mapState({
+      /** ローディング状態 */
+      loading: state => state.loading.add || state.loading.update
+    }),
     /** ダイアログのタイトル */
     titleText () {
       return this.actionType === 'add' ? 'データ追加' : 'データ編集'
@@ -219,7 +221,7 @@ export default {
       this.show = false
     },
     /** 追加／更新がクリックされたとき */
-    onClickAction () {
+    async onClickAction () {
       const item = {
         date: this.date,
         title: this.title,
@@ -232,11 +234,10 @@ export default {
       item[this.inout] = this.amount || 0
 
       if (this.actionType === 'add') {
-        item.id = Math.random().toString(36).slice(-8) // ランダムな8文字のIDを生成
-        this.addAbData({ item })
+        await this.addAbData({ item })
       } else {
         item.id = this.id
-        this.updateAbData({ beforeYM: this.beforeYM, item })
+        await this.updateAbData({ beforeYM: this.beforeYM, item })
       }
 
       this.show = false
